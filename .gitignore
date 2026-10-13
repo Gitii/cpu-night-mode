@@ -1,0 +1,7 @@
+/build/
+/dist/
+/debian/.debhelper/
+/debian/cpu-night-mode/
+/debian/files
+/debian/*.debhelper
+/debian/*.substvars

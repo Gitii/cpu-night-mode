@@ -1,0 +1,63 @@
+.TH CPU-NIGHT-MODE 1 "October 2026" "cpu-night-mode 0.1.0"
+.SH NAME
+cpu-night-mode \- scheduled, reversible CPU frequency ceilings
+.SH SYNOPSIS
+.B cpu-night-mode
+.RI [ flags ] " command"
+.SH DESCRIPTION
+Applies a maximum frequency to every CPUFreq policy during a daily time window.
+Original ceilings are saved before writes and restored outside the window or
+when the systemd service stops. The default window is 19:00 to 09:00 in
+Europe/Berlin with a 1600 MHz ceiling. Evaluation occurs every 30 seconds.
+.SH COMMANDS
+.TP
+.B daemon
+Run the scheduler. Normally started by cpu-night-mode.service as root.
+.TP
+.B status
+Print the on-disk configuration, current policy ceilings, and recovery state.
+.TP
+.B check-config
+Validate configuration without changing hardware.
+.TP
+.B restore
+Restore saved policy ceilings. Run as root with the daemon stopped.
+Does not require a valid configuration file.
+.TP
+.B version
+Print the program version.
+.SH FLAGS
+Flags must precede the command.
+.TP
+.BI -config " path"
+Configuration file (default /etc/cpu-night-mode.conf).
+.TP
+.BI -sysfs " path"
+CPUFreq policy root (default /sys/devices/system/cpu/cpufreq).
+.TP
+.BI -state-dir " path"
+Recovery directory (default /run/cpu-night-mode).
+.SH CONFIGURATION
+The INI file supports schedule.start and schedule.end in HH:MM format,
+schedule.timezone as an IANA timezone, and cpu.max_frequency_mhz as an integer.
+Start is inclusive, end exclusive; equal times are invalid. Omitted settings
+use defaults. Unknown or duplicate keys are errors.
+.PP
+Validate with cpu-night-mode check-config, then use
+sudo systemctl reload cpu-night-mode to apply edits.
+Invalid configuration on reload retains the previous configuration.
+.SH RECOVERY
+sudo systemctl stop cpu-night-mode restores the original limits.
+sudo systemctl disable --now cpu-night-mode also disables automatic startup.
+Failed restoration retains originals.json for a subsequent recovery attempt.
+systemd ExecStopPost runs recovery after crashes, including SIGKILL.
+.SH FILES
+.TP
+/etc/cpu-night-mode.conf
+Configuration, preserved on package upgrades.
+.TP
+/run/cpu-night-mode/originals.json
+Original per-policy ceilings and current boot ID.
+.SH SEE ALSO
+.BR systemctl (1),
+.BR journalctl (1)

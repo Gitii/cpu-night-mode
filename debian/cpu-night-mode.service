@@ -1,0 +1,33 @@
+[Unit]
+Description=Scheduled CPU frequency ceiling for quiet nights
+After=local-fs.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/cpu-night-mode daemon
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStopPost=/usr/bin/cpu-night-mode restore
+Restart=on-failure
+RestartSec=30
+RuntimeDirectory=cpu-night-mode
+RuntimeDirectoryMode=0755
+RuntimeDirectoryPreserve=yes
+TimeoutStopSec=15
+UMask=0022
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/sys/devices/system/cpu/cpufreq /run/cpu-night-mode
+PrivateTmp=yes
+PrivateDevices=yes
+ProtectControlGroups=yes
+ProtectKernelModules=yes
+ProtectKernelLogs=yes
+RestrictAddressFamilies=AF_UNIX
+RestrictSUIDSGID=yes
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target

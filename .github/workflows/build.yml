@@ -1,0 +1,62 @@
+name: Build
+
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ !startsWith(github.ref, 'refs/tags/') }}
+
+jobs:
+  deb:
+    name: Ubuntu ${{ matrix.ubuntu }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        ubuntu: ['24.04', '26.04']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint
+        run: make lint UBUNTU_VERSION=${{ matrix.ubuntu }}
+      - name: Test and build Debian package
+        run: make deb UBUNTU_VERSION=${{ matrix.ubuntu }}
+      - name: Install, verify, and remove package in container
+        run: |
+          docker run --rm --mount type=bind,src="$PWD",dst=/work/src \
+            cpu-night-mode-build:${{ matrix.ubuntu }} bash -euc '
+              apt-get install -y ./dist/cpu-night-mode_*.deb
+              make check-installed
+              apt-get remove -y cpu-night-mode
+              test ! -e /usr/bin/cpu-night-mode
+              apt-get purge -y cpu-night-mode
+              test ! -e /etc/cpu-night-mode.conf
+            '
+      - uses: actions/upload-artifact@v4
+        with:
+          name: deb-ubuntu-${{ matrix.ubuntu }}
+          path: dist/*.deb
+          if-no-files-found: error
+
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: deb
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.deb
+          generate_release_notes: true

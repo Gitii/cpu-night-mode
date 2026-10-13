@@ -1,0 +1,16 @@
+Source: cpu-night-mode
+Section: admin
+Priority: optional
+Maintainer: Gitii <gitii@users.noreply.github.com>
+Build-Depends: debhelper-compat (= 13), make, golang-go (>= 2:1.26~)
+Standards-Version: 4.7.0
+Homepage: https://github.com/Gitii/cpu-night-mode
+Rules-Requires-Root: no
+
+Package: cpu-night-mode
+Architecture: any
+Depends: ${misc:Depends}, systemd (>= 249)
+Description: scheduled CPU frequency ceilings for quiet nights
+ Applies a configurable maximum CPU frequency during a daily time window
+ and restores the original policy limits afterward. Includes a systemd
+ service, a configuration file, and a command-line status utility.

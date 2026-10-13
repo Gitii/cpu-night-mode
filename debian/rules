@@ -1,0 +1,24 @@
+#!/usr/bin/make -f
+export DH_VERBOSE = 1
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	$(MAKE) build-inner
+
+override_dh_auto_test:
+	$(MAKE) check-inner
+
+override_dh_auto_install:
+	install -D -m 0755 build/cpu-night-mode debian/cpu-night-mode/usr/bin/cpu-night-mode
+	install -D -m 0644 packaging/cpu-night-mode.conf debian/cpu-night-mode/etc/cpu-night-mode.conf
+
+override_dh_auto_clean:
+	rm -rf build
+
+override_dh_strip:
+	# Pure Go binary is stripped at build time; no dbgsym package.
+
+override_dh_dwz:
+	# Go binary has no DWARF sections after stripping.

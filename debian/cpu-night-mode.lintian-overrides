@@ -1,0 +1,2 @@
+# Deliberately built with CGO_ENABLED=0: a dependency-free Go host utility.
+cpu-night-mode: statically-linked-binary [usr/bin/cpu-night-mode]

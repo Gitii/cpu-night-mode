@@ -1,0 +1,14 @@
+#!/bin/bash
+set -e
+
+# Keep the recovery binary installed if hardware restoration fails.
+case "$1" in
+    remove|upgrade|deconfigure)
+        if [[ -d /run/systemd/system ]]; then
+            systemctl stop cpu-night-mode.service
+            /usr/bin/cpu-night-mode restore
+        fi
+        ;;
+esac
+
+#DEBHELPER#
