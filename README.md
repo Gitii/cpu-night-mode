@@ -11,7 +11,7 @@ Download the `.deb` for your Ubuntu version and architecture from
 [Releases](https://github.com/Gitii/cpu-night-mode/releases), then install it:
 
 ```fish
-sudo apt install ./cpu-night-mode_0.1.0-1~ubuntu26.04_amd64.deb
+sudo apt install ./cpu-night-mode_0.1.0-1.ubuntu26.04_amd64.deb
 cpu-night-mode status
 systemctl status cpu-night-mode
 ```
